@@ -1,69 +1,103 @@
+import { Badge } from "@/components/badge";
+import { getProfilesWithBadges } from "@/lib/queries/members";
+import { createClient } from "@/lib/supabase/server";
 import Image from "next/image";
+import { Suspense } from "react";
 
-export default function Home() {
+const MAX_VISIBLE_BADGES = 4;
+
+export async function Members() {
+  const profiles = await getProfilesWithBadges();
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <ul className="w-200 py-8 space-y-2">
+      {profiles.map((p) => {
+        const hidden = p.badges.length - MAX_VISIBLE_BADGES;
+
+        return (
+          <li
+            key={p.id}
+            className="px-4 py-2 rounded-xl bg-neutral-100 flex items-center justify-between"
           >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
+            <div className="flex gap-2 items-center">
+              <Image
+                src="/człowiek.jpg"
+                width={50}
+                height={50}
+                alt={`${p.name} ${p.surname}`}
+                className="rounded-full"
+              />
+              <div className="flex flex-col">
+                <span className="text-sm font-medium">
+                  {p.name} {p.surname}
+                </span>
+                <span className="text-xs">
+                  {p.section ?? "-"}・{p.status}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex gap-1 items-center">
+              {p.badges.slice(0, MAX_VISIBLE_BADGES).map((ub) => (
+                <Badge
+                  key={ub.badge.id}
+                  badge={{
+                    id: ub.badge.id,
+                    name: ub.badge.name,
+                    description: ub.badge.description,
+                    max_steps: ub.badge.maxSteps,
+                    svg: ub.badge.svgPath,
+                  }}
+                  configure={{
+                    type: "only-badge",
+                    color: ub.badge.color,
+                    size: 3,
+                  }}
+                  userBadge={{
+                    badgeId: ub.badge.id,
+                    created_at: ub.createdAt,
+                    updated_at: ub.updatedAt,
+                    cur_steps: ub.curSteps,
+                  }}
+                />
+              ))}
+
+              {hidden > 0 && (
+                <div className="w-12 h-12 text-sm rounded-full flex justify-center items-center bg-neutral-300 shrink-0">
+                  +{hidden}
+                </div>
+              )}
+            </div>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+export default function Page() {
+  // const supabase = await createClient();
+  // const { data, error } = await supabase.from("badges").select("*");
+  // let badges;
+  // if (error || !data) return <h1>Wystąpił błąd.</h1>;
+  // badges = data;
+  // console.log(data);
+
+  return (
+    <div className="flex justify-center">
+      {/* <ul className="fixed top-8 left-8 w-80 space-y-2">
+        {badges.map((badge) => (
+          <li key={badge.id}>
+            <Badge
+              badge={badge}
+              configure={{ type: "list-badge", color: badge.color, size: 3 }}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+          </li>
+        ))}
+      </ul> */}
+      <Suspense fallback={<p>Ładowanie członków...</p>}>
+        <Members />
+      </Suspense>
     </div>
   );
 }
