@@ -1,4 +1,4 @@
-export type Badge = {
+export type BadgeType = {
   id: string;
   name: string;
   description: string;
@@ -7,14 +7,14 @@ export type Badge = {
   svgPath: string | null;
 };
 
-export type UserBadge = {
-  badge: Badge;
+export type UserBadgeType = {
+  badgeId: string;
   curSteps: number;
   createdAt: string;
   updatedAt: string;
 };
 
-export type Profile = {
+export type ProfileType = {
   id: string;
   name: string;
   surname: string;
@@ -24,6 +24,6 @@ export type Profile = {
   createdAt: string;
 };
 
-export type ProfileWithBadges = Profile & {
-  badges: UserBadge[];
+export type ProfileWithBadgesType = ProfileType & {
+  userBadges: UserBadgeType[];
 };

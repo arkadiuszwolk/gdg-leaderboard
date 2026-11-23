@@ -1,35 +1,21 @@
 "use client";
 
-import type { CSSProperties, ReactNode } from "react";
+import type { CSSProperties } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
-
-export type BadgeData = {
-  id: string;
-  name: string;
-  description: string;
-  max_steps: number;
-  svg: ReactNode;
-};
-
-export type UserBadge = {
-  badgeId: string;
-  created_at: string;
-  updated_at: string;
-  cur_steps: number;
-};
+import { BadgeType, UserBadgeType } from "@/types/types";
 
 export type BadgeConfigure = {
-  color: string;
+  color: string | null;
   type: "only-badge" | "list-badge" | "full-badge" | "manage-badge";
   /** Badge artwork diameter in rem; the ring, gap, and image scale proportionally. */
   size?: number;
 };
 
 export type BadgeProps = {
-  badge: BadgeData;
-  userBadge?: UserBadge;
+  badge: BadgeType;
+  userBadge?: UserBadgeType;
   isDeleted?: boolean;
   configure?: BadgeConfigure;
   onStepChange?: (curSteps: number) => void;
@@ -64,10 +50,10 @@ export function Badge({
 }: BadgeProps) {
   const type = configure?.type ?? "only-badge";
   const color = configure?.color ?? "#7867f5";
-  const hasRing = badge.max_steps > 1;
-  const steps = Math.max(1, Math.floor(badge.max_steps));
+  const hasRing = badge.maxSteps > 1;
+  const steps = Math.max(1, Math.floor(badge.maxSteps));
   const completed = userBadge
-    ? Math.min(steps, Math.max(0, Math.floor(userBadge.cur_steps)))
+    ? Math.min(steps, Math.max(0, Math.floor(userBadge.curSteps)))
     : 0;
   const isUnavailable = type === "manage-badge" && isDeleted;
   const defaultSize =
@@ -188,7 +174,7 @@ export function Badge({
           >
             {/* {badge.svg} */}
             <Image
-              src="/globe.svg"
+              src={badge.svgPath ?? "/globe.svg"}
               alt="Ikona odznaki"
               fill
               className="object-contain"
@@ -230,7 +216,7 @@ export function Badge({
         >
           <h3
             className={cn(
-              "m-0 overflow-hidden text-[14px] leading-[1.35] font-[650] text-ellipsis [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:1] font-medium",
+              "m-0 overflow-hidden text-[14px] leading-[1.35] font-[650] text-ellipsis [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:1]",
               type === "full-badge" && "text-[16px]",
             )}
             title={badge.name}
