@@ -1,9 +1,17 @@
 "use client";
 
-import { BadgeType, ProfileWithBadgesType } from "@/types/types";
+import { useState } from "react";
+import type { BadgeType, ProfileWithBadgesType } from "@/types/types";
 import { Board } from "./board";
 import { SlidingTabs } from "./sliding-tabs";
-import { act, useState } from "react";
+
+const TABS = ["Wszyscy", "Management", "Development", "Marketing"];
+const SECTION_BY_TAB = [
+  null,
+  "management",
+  "development",
+  "marketing",
+] as const;
 
 export function List({
   profiles,
@@ -13,17 +21,20 @@ export function List({
   badges: BadgeType[];
 }) {
   const [activeTabIndex, setActiveTabIndex] = useState(0);
-  console.log(activeTabIndex);
+
+  const section = SECTION_BY_TAB[activeTabIndex];
+  const visibleProfiles = section
+    ? profiles.filter((p) => p.section === section)
+    : profiles;
+
   return (
     <div className="flex flex-col items-center">
       <SlidingTabs
-        tabs={["Wszyscy", "Management", "Development", "Marketing"]}
+        tabs={TABS}
         activeTabIndex={activeTabIndex}
-        setActiveTabIndex={(activeTabIndex) =>
-          setActiveTabIndex(activeTabIndex)
-        }
+        setActiveTabIndex={setActiveTabIndex}
       />
-      <Board profiles={profiles} badges={badges} />
+      <Board profiles={visibleProfiles} badges={badges} />
     </div>
   );
 }

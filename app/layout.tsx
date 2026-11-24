@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
+import { Logo } from "@/components/logo";
+import { User } from "@/components/user";
 
 const inter = Inter({
   subsets: ["latin", "latin-ext"], // "latin-ext" zapewnia polskie znaki (ą, ć, ę, ł, ń, ó, ś, ź, ż)
@@ -25,6 +27,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${inter.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className={`${inter.className} min-h-full flex flex-col`}>
+        <div className="fixed top-0 left-0 px-16 py-8 flex justify-between w-full">
+          <Logo />
+          <User />
+        </div>
         {children}
       </body>
     </html>
